@@ -1,6 +1,6 @@
 # timetracker
 
-It's a small bash script that allow me to track my professional task during the
+It's a small bash script that allow me to track my professional tasks during the
 day.
 
 ## Installation
