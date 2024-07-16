@@ -1,0 +1,105 @@
+#!/usr/bin/bash
+
+timetrackerFolder="${HOME}/.timetracker"
+today=$(date -I)
+now=$(date +"%T")
+todayTrackingFile="${timetrackerFolder}/${today}"
+
+function init() {
+  if [[ -d $timetrackerFolder ]]; then
+    echo "The timetracker folder already exists, no initialization will be done."
+    exit 0
+  fi
+
+  echo "Creating timetracker folder : $timetrackerFolder ..."
+  mkdir $timetrackerFolder
+  echo "Initialization done."
+
+  exit 0
+}
+
+function verifyInitializationDone() {
+  if [[ ! -d $timetrackerFolder ]]; then
+    echo "Initialization isn't done. Please run 'timetracker init' first."
+    exit 1
+  fi
+}
+
+function track() {
+  local message=$1
+
+  echo "$now: $message" >> $todayTrackingFile
+}
+
+function stopDay() {
+  echo "$now: END OF DAY" >> $todayTrackingFile
+}
+
+function display() {
+  cat $todayTrackingFile
+}
+
+function showHelp() {
+  echo "timetracker init            # Create the folder which store the trackings"
+  echo "timetracker track <message> # Save in file the message at current time"
+  echo "timetracker display         # Display all entries of the day" 
+  echo "timetracker delete          # Delete folder and all entries"
+  echo "timetracker stop            # Save in file the current time at which you finish your day"
+  echo "timetracker                 # Display help"
+  echo "timetracker help            # Display help"
+}
+
+function delete() {
+  echo "You are about to delete the timetracker folder, would you like to continue ? [yN]"
+  read yn
+
+  case $yn in
+    [Yy]* ) rm -r $timetrackerFolder;;
+    * ) echo "Nothing has been deleted.";;
+  esac
+}
+
+function main() {
+  local cmd=$1
+  local message=$2
+
+  case $cmd in
+    "init" )
+      init
+      exit 0
+      ;;
+
+    "track" )
+      verifyInitializationDone
+      track "$message"
+      exit 0
+      ;;
+
+    "display" )
+      verifyInitializationDone
+      display
+      exit 0
+      ;;
+
+    "delete" )
+      verifyInitializationDone
+      delete
+      exit 0
+      ;;
+
+    "stop" )
+      verifyInitializationDone
+      stopDay
+      exit 0
+      ;;
+
+    "help" | * )
+      showHelp
+      exit 0
+      ;;
+  esac
+}
+
+main $1 "$2"
+
+
